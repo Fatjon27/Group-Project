@@ -1,0 +1,15 @@
+package com.example.groupproject.repositories;
+
+import com.example.groupproject.models.Comment;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+import java.util.ArrayList;
+import java.util.Optional;
+
+@Repository
+public interface CommentRepository extends JpaRepository<Comment,Long> {
+
+    public ArrayList<Comment> findAll();
+
+}
