@@ -79,5 +79,5 @@ public class Quote {
     protected void onUpdate(){
         this.updatedAt = new Date();
     }
-    
+
 }
