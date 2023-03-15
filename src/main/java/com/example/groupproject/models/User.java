@@ -36,8 +36,27 @@ public class User {
     private Date updatedAt;
     @OneToMany(mappedBy = "user",fetch = FetchType.LAZY)
     private List<Quote> quotes;
-
+    @OneToMany(mappedBy = "user",fetch = FetchType.LAZY)
+    private List<Comment> comments;
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(name = "likes",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "quote_id"))
+    private List<Quote> likes;
     public User() {
+    }
+
+    public User(Long id, String name, String email, String password, String confirm, Date createdAt, Date updatedAt, List<Quote> quotes, List<Comment> comments, List<Quote> likes) {
+        this.id = id;
+        this.name = name;
+        this.email = email;
+        this.password = password;
+        this.confirm = confirm;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
+        this.quotes = quotes;
+        this.comments = comments;
+        this.likes = likes;
     }
 
     public User(Long id, String name, String email, String password, String confirm, Date createdAt, Date updatedAt) {
@@ -112,5 +131,21 @@ public class User {
     @PreUpdate
     protected void onUpdate(){
         this.updatedAt = new Date();
+    }
+
+    public List<Comment> getComments() {
+        return comments;
+    }
+
+    public void setComments(List<Comment> comments) {
+        this.comments = comments;
+    }
+
+    public List<Quote> getLikes() {
+        return likes;
+    }
+
+    public void setLikes(List<Quote> likes) {
+        this.likes = likes;
     }
 }
