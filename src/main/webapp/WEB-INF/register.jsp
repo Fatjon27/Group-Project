@@ -17,11 +17,20 @@
     <script src="/webjars/jquery/jquery.min.js"></script>
     <script src="/webjars/bootstrap/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="/js/app.js"></script><!-- change to match your file/naming structure -->
+    <style>
+        body{
+            background-image: url(../images/foto-projekti2.webp);
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            background-size: cover;
+        }
+    </style>
+
 </head>
 <body class="bg-light">
 <div class="container">
     <div class="d-flex flex-column justify-content-center align-items-center gap-2">
-        <h1>Login/Register</h1>
+        <h1 class="text-white">Login/Register</h1>
     </div>
     <div class="d-flex justify-content-center gap-5 mt-3">
         <div class = "bg-light p-5">

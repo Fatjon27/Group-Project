@@ -1,6 +1,8 @@
 package com.example.groupproject.controllers;
 
+import com.example.groupproject.models.Comment;
 import com.example.groupproject.models.LoginUser;
+import com.example.groupproject.models.Quote;
 import com.example.groupproject.models.User;
 import com.example.groupproject.services.CommentService;
 import com.example.groupproject.services.QuoteService;
@@ -11,6 +13,7 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 
 import javax.servlet.http.HttpSession;
@@ -24,6 +27,7 @@ public class ProjectController {
     private QuoteService quoteService;
     @Autowired
     private CommentService commentService;
+
 
     @GetMapping("/")
     public String index(Model model, @ModelAttribute("newUser") User newUser, @ModelAttribute("newLogin") LoginUser newLogin) {
@@ -67,17 +71,107 @@ public class ProjectController {
 
     //Main Page that shows up when a user registers,login
     @GetMapping("/dashboard")
-    public String dashboard(Model model, HttpSession session) {
+    public String dashboard(Model model, HttpSession session, @ModelAttribute("quote") Quote quote, @ModelAttribute("comment") Comment comment) {
         Long loggedInUserId = (Long) session.getAttribute("loggedInUserId");
         if (loggedInUserId == null) {
             return "redirect:/";
         } else {
             User user = userService.findById(loggedInUserId);
             model.addAttribute("user", userService.findById(loggedInUserId));
-            model.addAttribute("quotes",quoteService.findAll());
+            model.addAttribute("quotes", quoteService.findAll());
+            model.addAttribute("comments", commentService.findAll());
+
+            return "dashboard";
+        }
+    }
+
+    @PostMapping("/new/quotes")
+    public String createQuote(@ModelAttribute("quote") Quote quote, BindingResult result, Model model, HttpSession session) {
+        Long loggedInUserId = (Long) session.getAttribute("loggedInUserId");
+        if (loggedInUserId == null) {
+            return "redirect:/";
+        } else {
+            User user = userService.findById(loggedInUserId);
+            model.addAttribute("user", userService.findById(loggedInUserId));
+            if (result.hasErrors()) {
+                model.addAttribute("quote", new Quote());
                 return "dashboard";
+            } else {
+                quote.setUser(user);
+                quoteService.createQuote(quote,result);
+                return "redirect:/dashboard";
             }
         }
+    }
+
+    @PostMapping("/new/comment/{id}")
+    public String createComment(@ModelAttribute("comment") Comment comment, BindingResult result, Model model, HttpSession session, @PathVariable("id") Long quoteId) {
+        Long loggedInUserId = (Long) session.getAttribute("loggedInUserId");
+        Quote quote = quoteService.findById(quoteId);
+        if (loggedInUserId == null) {
+            return "redirect:/";
+        } else {
+            User user = userService.findById(loggedInUserId);
+            model.addAttribute("user", userService.findById(loggedInUserId));
+            if (result.hasErrors()) {
+                model.addAttribute("quote", new Quote());
+                return "dashboard";
+            } else {
+                Comment comment1 = new Comment(comment.getText(), comment.getCreatedAt(), comment.getUpdatedAt());
+                comment1.setUser(user);
+                comment1.setQuote(quote);
+                commentService.createComment(comment1,result);
+                return "redirect:/dashboard";
+            }
+        }
+    }
+
+    @PostMapping("/new/like/{id}")
+    public String addLike(@PathVariable("id") Long quoteId, Model model, HttpSession session) {
+        Long loggedInUserId = (Long) session.getAttribute("loggedInUserId");
+        Quote quote = quoteService.findById(quoteId);
+        if (loggedInUserId == null) {
+            return "redirect:/";
+        } else {
+            User user = userService.findById(loggedInUserId);
+            model.addAttribute("user", userService.findById(loggedInUserId));
+            user.getLikes().add(quote);
+            userService.updateUser(user);
+            return "redirect:/dashboard";
+
+        }
+    }
+    @PostMapping("/remove/like/{id}")
+    public String removeLike(@PathVariable("id") Long quoteId, Model model, HttpSession session) {
+        Long loggedInUserId = (Long) session.getAttribute("loggedInUserId");
+        Quote quote = quoteService.findById(quoteId);
+        if (loggedInUserId == null) {
+            return "redirect:/";
+        } else {
+            User user = userService.findById(loggedInUserId);
+            model.addAttribute("user", userService.findById(loggedInUserId));
+            user.getLikes().remove(quote);
+            userService.updateUser(user);
+            return "redirect:/dashboard";
+
+        }
+    }
+
+    @GetMapping( "/quote/{id}/delete" )
+    public String deleteQuote( @PathVariable( "id" ) Long id) {
+
+        quoteService.deleteQuote( id);
+
+        return "redirect:/dashboard";
+    }
+    @GetMapping( "/comment/{id}/delete" )
+    public String deleteComment( @PathVariable( "id" ) Long id ) {
+
+        commentService.deleteComment( id );
+
+
+        return "redirect:/dashboard";
+    }
 
 
     }

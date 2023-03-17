@@ -30,6 +30,12 @@ public class Comment {
     public Comment(){
     }
 
+    public Comment(String text, Date createdAt, Date updatedAt) {
+        this.text = text;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
+    }
+
     public Comment(Long id, String text, Date createdAt, Date updatedAt, User user, Quote quote) {
         this.id = id;
         this.text = text;
